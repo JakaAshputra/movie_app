@@ -9,7 +9,7 @@ export default function HomeStackNavigation(): JSX.Element {
   return (
     <Stack.Navigator>
       <Stack.Screen name="HomePage" component={Home} options={{ headerShown: false }}/>
-      <Stack.Screen name="MovieDetail" component={MovieDetail} options={{ headerShown: false }}/>
+      <Stack.Screen name="MovieDetail" component={MovieDetail} />
     </Stack.Navigator>
   );
 }
