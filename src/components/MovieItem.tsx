@@ -3,16 +3,20 @@ import { ImageBackground, Text, StyleSheet, View, TouchableOpacity } from 'react
 import { useNavigation, StackActions } from '@react-navigation/native'
 import { FontAwesome } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient'
-import type { MovieItemProps } from '../../types/app'
+import type { MovieItemProps } from '../types/app'
 
 const MovieItem = ({ movie, size, coverType }: MovieItemProps): JSX.Element => {
 const navigation = useNavigation()
- const pushAction = StackActions.push('MovieDetail', { id: movie.id })
+//  const pushAction = StackActions.push('MovieDetail', { id: movie.id })
+ const pushNavigation = () : void => {
+  navigation.dispatch(StackActions.push('MovieDetail', { id: movie.id }))
+}
   return (
     <TouchableOpacity
-        onPress={() => {
-        navigation.dispatch(pushAction)
-      }}>
+    onPress={pushNavigation}
+        // onPress={() => {
+        // navigation.dispatch(pushAction)}}
+        >
       <ImageBackground
         resizeMode="cover"
         style={[size, styles.backgroundImage]}

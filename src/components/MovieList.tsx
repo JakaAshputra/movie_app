@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import React, { useState, useEffect } from 'react'
 import { View, Text, StyleSheet, FlatList } from 'react-native'
-import type { MovieListProps, Movie } from '../../types/app'
+import type { MovieListProps, Movie } from '../types/app'
 import { API_ACCESS_TOKEN } from '@env'
 import MovieItem from './MovieItem'
 
@@ -41,8 +42,6 @@ const MovieList = ({ title, path, coverType }: MovieListProps): JSX.Element => {
         console.log(errorResponse)
       })
   }
-
-  console.log(movies)
 
   return (
     <View>

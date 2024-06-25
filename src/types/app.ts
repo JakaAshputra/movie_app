@@ -10,6 +10,16 @@ export interface MovieListProps {
     coverType: 'poster' | 'backdrop'
   }
 
+  export interface MovieDetailProps {
+    movie: Movie
+  }
+
+  export interface MovieCategoryProps {
+    id: number
+    name: string
+}
+
+
   export interface Movie {
     backdrop_path: string
     genres: { id: number; name: string }

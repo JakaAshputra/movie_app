@@ -1,67 +1,126 @@
 import React, { useEffect, useState } from 'react'
-import { ScrollView, Text, View, StyleSheet, FlatList, ImageBackground } from 'react-native'
+import { 
+  ScrollView, 
+  Text, 
+  View, 
+  StyleSheet,
+  ImageBackground, 
+} from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { LinearGradient } from 'expo-linear-gradient'
 import { FontAwesome } from '@expo/vector-icons'
 import { API_ACCESS_TOKEN } from '@env'
-import MovieItem from '../components/movies/MovieItem'
-
-const coverImageSize = {
-  backdrop: {
-    width: 280,
-    height: 160,
-  },
-  poster: {
-    width: 100,
-    height: 160,
-  },
-}
+import type { Movie } from '../types/app'
+import MovieList from '../components/MovieList'
 
 const MovieDetail = ({ route }: any): JSX.Element => {
+  const [detailMovie, setDetailMovie] = useState<Movie | null>(null)
+  const [isFavorite, setIsFavorite] = useState<boolean>(false)
   const { id } = route.params
-  const [movieDetail, setMovieDetail] = useState<any>(null)
-  const [recommendations, setRecommendations] = useState<Movie[]>([])
 
   useEffect(() => {
-    fetchMovieDetail()
-    fetchRecommendations()
-  }, [])
+    getMovieDetail()
+    // checkIsFavorite(id).then(setIsFavorite)
+}, [id])
 
-  const fetchMovieDetail = async () : Promise<void> => {
-    try {
-      const url = `https://api.themoviedb.org/3/movie/${id}?language=en-US`
-      const options = {
+  const getMovieDetail = () : void => {
+    const url = `https://api.themoviedb.org/3/movie/${id}?language=en-US`
+    const options = {
+        method: 'GET',
         headers: {
-          Authorization: `Bearer ${API_ACCESS_TOKEN}`
-        }
-      }
-      const response = await fetch(url, options)
-      const data = await response.json()
-      setMovieDetail(data)
-    } catch (error) {
-      console.error('Error fetching movie detail:', error)
+            accept: 'application/json',
+            Authorization: `Bearer ${API_ACCESS_TOKEN}`,
+        },
     }
+
+    fetch(url, options)
+        .then(async (response) => await response.json())
+        .then((response) => {
+            setDetailMovie(response)
+        })
+        .catch((errorResponse) => {
+            console.log(errorResponse)
+        })
   }
 
-  const fetchRecommendations = async () : Promise<void> => {
+  const checkIsFavorite = async (id: number): Promise<boolean> => {
     try {
-      const url = `https://api.themoviedb.org/3/movie/${id}/recommendations?language=en-US&page=1`
-      const options = {
-        headers: {
-          Authorization: `Bearer ${API_ACCESS_TOKEN}`
+        const initialData: string | null =
+            await AsyncStorage.getItem('@FavoriteList')
+        if (initialData !== null) {
+            const favMovieList: Movie[] = JSON.parse(initialData)
+            return favMovieList.some((movie) => movie.id === id)
         }
-      }
-      const response = await fetch(url, options)
-      const data = await response.json()
-      setRecommendations(data.results)
+        return false
     } catch (error) {
-      console.error('Error fetching recommendations:', error)
+        console.log(error)
+        return false
     }
-  }
+}
 
-  if (!movieDetail) {
+if (!detailMovie) {
     return (
-      <View style={styles.container}>
-        <Text>Loading...</Text>
+        <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Loading...</Text>
+        </View>
+    )
+}
+
+  const addFavorite = async (movie: Movie): Promise<void> => {
+    try {
+      const initialData: string | null = await AsyncStorage.getItem(
+        '@FavoriteList'
+      )
+      // console.log(initialData)
+      console.log("ini movie", movie)
+  
+      let favMovieList: Movie[] = []
+  
+      if (initialData !== null) {
+        favMovieList = [...JSON.parse(initialData), movie]
+      } else {
+        favMovieList = [movie]
+      }
+  
+      await AsyncStorage.setItem(
+        '@FavoriteList', 
+        JSON.stringify(favMovieList)
+      )
+      setIsFavorite(true)
+      
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const removeFavorite = async (movieId: number): Promise<void> => {
+    try {
+      const initialData: string | null = await AsyncStorage.getItem(
+        '@FavoriteList'
+      )
+      // console.log(initialData)
+      if (initialData !== null) {
+        const favMovieList: Movie[] = JSON.parse(initialData)
+        const upatedFavMovieList = favMovieList.find(
+          (movie) => movie.id === movieId,
+        )
+        // console.log("update", upatedFavMovieList)
+        await AsyncStorage.setItem(
+          '@FavoriteList', 
+          JSON.stringify(upatedFavMovieList),
+        )
+        setIsFavorite(false)
+      }
+    } catch (error) {
+      console.log('Error removing favorite:', error)
+      console.log("id", movieId)
+    }
+  }
+
+  if (!detailMovie) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Loading...</Text>
       </View>
     )
   }
@@ -69,12 +128,11 @@ const MovieDetail = ({ route }: any): JSX.Element => {
   return (
 <ScrollView>
   <View style={styles.container}>
-      {/* Konten MovieDetail */}
       <ImageBackground
         style={styles.poster}
         resizeMode="cover"
         source={{
-          uri: `https://image.tmdb.org/t/p/w500${movieDetail.poster_path}`,
+          uri: `https://image.tmdb.org/t/p/w500${detailMovie.poster_path}`,
         }}
       >
         <LinearGradient
@@ -83,60 +141,67 @@ const MovieDetail = ({ route }: any): JSX.Element => {
         style={styles.gradient}
       >
         <View style={styles.content}>
-          <Text style={styles.title}>{movieDetail.title}</Text>
+          <Text style={styles.title}>{detailMovie.title}</Text>
           <View style={styles.ratingContainer}>
             <FontAwesome name="star" size={16} color="yellow" />
-            <Text style={styles.rating}>{movieDetail.vote_average.toFixed(1)}</Text>
+            <Text style={styles.rating}>{detailMovie.vote_average.toFixed(1)}</Text>
           </View>
         </View>
+        <View style={styles.favoriteIcon}>
+                        <FontAwesome
+                            name={isFavorite ? 'heart' : 'heart-o'}
+                            size={24}
+                            color="pink"
+                            onPress={() => {
+                                if (isFavorite) {
+                                    removeFavorite(detailMovie.id)
+                                } else {
+                                    addFavorite(detailMovie)
+                                }
+                            }}
+                        />
+                    </View>
       </LinearGradient>
       </ImageBackground>
       
-      <Text style={styles.overview}>{movieDetail.overview}</Text>
+      <Text style={styles.overview}>{detailMovie.overview}</Text>
 
       <View style={styles.additionalInfo}>
             <View style={styles.infoItem}>
               <Text style={styles.boldText}>Original Language:</Text>
-              <Text style={styles.infoText}>{movieDetail.original_language}</Text>
+              <Text style={styles.infoText}>{detailMovie.original_language}</Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.boldText}>Release Date:</Text>
-              <Text style={styles.infoText}>{movieDetail.release_date}</Text>
+              <Text style={styles.infoText}>
+                {new Date(detailMovie.release_date).toLocaleDateString(
+                    'en-US',
+                    {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      weekday: 'short',
+                    },
+               )}
+              </Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.boldText}>Popularity:</Text>
-              <Text style={styles.infoText}>{movieDetail.popularity}</Text>
+              <Text style={styles.infoText}>{detailMovie.popularity}</Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.boldText}>Vote Count:</Text>
-              <Text style={styles.infoText}>{movieDetail.vote_count}</Text>
+              <Text style={styles.infoText}>{detailMovie.vote_count}</Text>
+              {/* <Text style={styles.infoText}>{detailMovie.id}</Text> */}
             </View>
       </View>
-
-      {/* MovieList untuk recommendations */}
-      {recommendations.length > 0 && (
-        <View style={styles.recommendations}>
-          <View style={styles.header}>
-            <View style={styles.purpleLabel}></View>
-            <Text style={styles.recommendationTitle}>Recommendation</Text>
-          </View>
-          <FlatList
-            style={styles.movieList}
-            contentContainerStyle={{ paddingHorizontal: 16 }} // Padding horizontal untuk FlatList
-            data={recommendations}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            renderItem={({ item }) => (
-              <MovieItem
-                movie={item}
-                size={coverImageSize.poster}
-                coverType="poster"
-              />
-            )}
-            keyExtractor={(item) => item.id.toString()}
-          />
-        </View>
-      )}
+  </View>
+  <View style={styles.container}>
+    <MovieList
+      title="Recommendations"
+      path={`/movie/${id}/recommendations?language=en-US&page=1`}
+      coverType="poster"
+    />
   </View>
 </ScrollView>
   )
@@ -148,6 +213,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
     backgroundColor: '#fff',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+      fontSize: 18,
+      fontWeight: 'bold',
   },
   poster: {
     width: '100%',
@@ -230,6 +304,11 @@ const styles = StyleSheet.create({
   infoItem: {
     paddingHorizontal: 10,
     width: '50%',
+  },
+  favoriteIcon: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
   },
 })
 
