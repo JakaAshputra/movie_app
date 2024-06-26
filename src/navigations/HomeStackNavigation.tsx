@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import Home from '../screens/Home'
 import MovieDetail from '../screens/MovieDetail'
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator()
 
 const HomeStackNavigation = (): JSX.Element => {
   return (

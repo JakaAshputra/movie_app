@@ -11,16 +11,23 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { FontAwesome } from '@expo/vector-icons'
 import { API_ACCESS_TOKEN } from '@env'
 import type { Movie } from '../types/app'
-import MovieList from '../components/MovieList'
+import MovieList from '../components/movie/MovieList'
 
 const MovieDetail = ({ route }: any): JSX.Element => {
   const [detailMovie, setDetailMovie] = useState<Movie | null>(null)
   const [isFavorite, setIsFavorite] = useState<boolean>(false)
   const { id } = route.params
+  
+  useEffect(() => {
+    // Bersihkan state saat komponen di-unmount
+    return () => {
+      setDetailMovie(null);
+    };
+  }, []);
 
   useEffect(() => {
     getMovieDetail()
-    // checkIsFavorite(id).then(setIsFavorite)
+    checkIsFavorite(id).then(setIsFavorite)
 }, [id])
 
   const getMovieDetail = () : void => {
@@ -43,22 +50,25 @@ const MovieDetail = ({ route }: any): JSX.Element => {
         })
   }
 
-  const checkIsFavorite = async (id: number): Promise<boolean> => {
+  const checkIsFavorite = async (id: number): Promise<undefined> => {
     try {
         const initialData: string | null =
             await AsyncStorage.getItem('@FavoriteList')
         if (initialData !== null) {
             const favMovieList: Movie[] = JSON.parse(initialData)
-            return favMovieList.some((movie) => movie.id === id)
+            const filteredMovies = favMovieList.some((movie) => movie.id === id)
+            // console.log("cek: ", filteredMovies  )
+            setIsFavorite(filteredMovies);
+// kalau filter id ada isinya setIsFavorite true kalo ga ada setIsFavorite false
+        }else {
+          setIsFavorite(false);
         }
-        return false
     } catch (error) {
         console.log(error)
-        return false
     }
 }
 
-if (!detailMovie) {
+if (detailMovie == null) {
     return (
         <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>Loading...</Text>
@@ -72,7 +82,7 @@ if (!detailMovie) {
         '@FavoriteList'
       )
       // console.log(initialData)
-      console.log("ini movie", movie)
+      // console.log("ini movie", movie)
   
       let favMovieList: Movie[] = []
   
@@ -99,12 +109,13 @@ if (!detailMovie) {
         '@FavoriteList'
       )
       // console.log(initialData)
+      // console.log(movieId)
       if (initialData !== null) {
         const favMovieList: Movie[] = JSON.parse(initialData)
-        const upatedFavMovieList = favMovieList.find(
-          (movie) => movie.id === movieId,
+        const upatedFavMovieList = favMovieList.filter(
+          (movie) => movie.id !== movieId,
         )
-        // console.log("update", upatedFavMovieList)
+        console.log("update", upatedFavMovieList)
         await AsyncStorage.setItem(
           '@FavoriteList', 
           JSON.stringify(upatedFavMovieList),
@@ -113,7 +124,7 @@ if (!detailMovie) {
       }
     } catch (error) {
       console.log('Error removing favorite:', error)
-      console.log("id", movieId)
+      // console.log("id", movieId)
     }
   }
 

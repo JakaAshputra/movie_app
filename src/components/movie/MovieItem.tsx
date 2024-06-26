@@ -3,7 +3,7 @@ import { ImageBackground, Text, StyleSheet, View, TouchableOpacity } from 'react
 import { useNavigation, StackActions } from '@react-navigation/native'
 import { FontAwesome } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient'
-import type { MovieItemProps } from '../types/app'
+import type { MovieItemProps } from '../../types/app'
 
 const MovieItem = ({ movie, size, coverType }: MovieItemProps): JSX.Element => {
 const navigation = useNavigation()

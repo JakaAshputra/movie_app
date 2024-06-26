@@ -1,21 +1,23 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import React from 'react'
-import Favorite from '../screens/Favorite'
+import Search from '../screens/Search'
 import MovieDetail from '../screens/MovieDetail'
+import MovieGenre from '../screens/MovieGenre'
 
 const Stack = createNativeStackNavigator()
 
-const FavoriteStackNavigation = (): JSX.Element => {
+const SearchStackNavigation = (): JSX.Element => {
     return (
-        <Stack.Navigator initialRouteName="Favorites">
+        <Stack.Navigator initialRouteName="Search">
             <Stack.Screen
-                name="Favorites"
-                component={Favorite}
+                name="Search"
+                component={Search}
                 options={{ headerShown: false }}
             />
             <Stack.Screen name="MovieDetail" component={MovieDetail} />
+            <Stack.Screen name="MovieGenre" component={MovieGenre} />
         </Stack.Navigator>
     )
 }
 
-export default FavoriteStackNavigation
+export default SearchStackNavigation

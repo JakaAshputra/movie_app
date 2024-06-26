@@ -7,14 +7,14 @@ import {
     TouchableOpacity,
 } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import MovieItem from '../components/MovieItem'
+import MovieItem from '../components/movie/MovieItem'
 import type { Movie } from '../types/app'
 import { StackActions, useNavigation } from '@react-navigation/native'
 
-const Favorite = (): JSX.Element => {
+const Favorite = ({movie}): JSX.Element => {
     const [favoriteMovies, setFavoriteMovies] = useState<Movie[]>([])
     const navigation = useNavigation()
-    const pushNavigation = (movie: Movie) => {
+    const pushNavigation = () => {
         navigation.dispatch(StackActions.push('MovieDetail', { id: movie.id }))
     }
 
@@ -44,7 +44,7 @@ const Favorite = (): JSX.Element => {
                     data={favoriteMovies}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => (
-                        <TouchableOpacity onPress={() => pushNavigation(item)}>
+                        <TouchableOpacity onPress={pushNavigation}>
                             <MovieItem
                                 movie={item}
                                 size={styles.movieItem}
