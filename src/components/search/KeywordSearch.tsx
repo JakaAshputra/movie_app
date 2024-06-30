@@ -1,116 +1,107 @@
 import React, { useEffect, useState } from 'react'
-import {
-    View,
-    TextInput,
-    StyleSheet,
-    FlatList,
-    TouchableOpacity,
-} from 'react-native'
-import FontAwesome from '@expo/vector-icons/FontAwesome'
-import { API_ACCESS_TOKEN } from '@env'
+import { View, TextInput, StyleSheet, ScrollView } from 'react-native'
+import { Feather } from '@expo/vector-icons'
 import type { Movie } from '../../types/app'
+import { API_ACCESS_TOKEN } from '@env'
 import MovieItem from '../movie/MovieItem'
-import { StackActions } from '@react-navigation/native'
 
-const KeywordSearch = ({ navigation }: any): JSX.Element => {
-    const [keyword, setKeyword] = useState('')
-    const [movies, setMovies] = useState<Movie[]>([])
-    const pushNavigation = (movie: Movie) => {
-        navigation.dispatch(StackActions.push('MovieDetail', { id: movie.id }))
+const KeywordSearch = () => {
+  const [keyword, setKeyword] = useState('')
+  const [movieLists, setMovieLists] = useState<Movie[]>([])
+
+  const handleSubmit = () => {
+    console.log('Submitted keyword:', keyword)
+    getMovieList()
+  }
+
+  useEffect(() => {
+    getMovieList()
+  }, [])
+
+  const getMovieList = (): void => {
+    const url = `https://api.themoviedb.org/3/search/movie?query=${keyword}`
+    const options = {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${API_ACCESS_TOKEN}`,
+      },
     }
 
-    useEffect(() => {
-        getMovieList()
-    }, [])
+    fetch(url, options)
+      .then(async (response) => await response.json())
+      .then((response) => {
+        const movies = response.results
+        // console.log(movies)
+        setMovieLists(movies)
+      })
+      .catch((errorResponse) => {
+        console.log(errorResponse)
+      })
+  }
 
-    const getMovieList = (): void => {
-        const url = `https://api.themoviedb.org/3/search/movie?query=${keyword}&include_adult=false&language=en-US&page=1`
-        const options = {
-            method: 'GET',
-            headers: {
-                accept: 'application/json',
-                Authorization: `Bearer ${API_ACCESS_TOKEN}`,
-            },
-        }
-
-        fetch(url, options)
-            .then(async (response) => await response.json())
-            .then((response) => {
-                // console.log('API Response:', response)
-                setMovies(response.results)
-            })
-            .catch((errorResponse) => {
-                console.error(errorResponse)
-            })
-    }
-
-    return (
-        <View style={styles.container}>
-            <View style={styles.inputContainer}>
-                <FontAwesome
-                    name="search"
-                    size={20}
-                    color="gray"
-                    style={styles.icon}
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Input title movie here"
-                    placeholderTextColor="gray"
-                    onChangeText={(text) => setKeyword(text)}
-                    onSubmitEditing={() => getMovieList()}
-                    value={keyword}
-                />
-            </View>
-            <FlatList
-                data={movies}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => pushNavigation(item)}>
-                        <MovieItem
-                            movie={item}
-                            size={styles.movieItem}
-                            coverType="poster"
-                        />
-                    </TouchableOpacity>
-                )}
-                numColumns={3}
-                showsVerticalScrollIndicator={false}
-                style={{ height: 610, marginTop: 10 }}
-            />
+  return (
+    <ScrollView>
+      <View style={styles.container}>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Input title movie here"
+            value={keyword}
+            onChangeText={setKeyword}
+            onSubmitEditing={handleSubmit}
+          />
+          <Feather name="search" size={24} color="gray" style={styles.icon} />
         </View>
-    )
+
+        <View style={styles.rowItem}>
+          {movieLists.map((movie) => (
+            <MovieItem
+              movie={movie}
+              size={styles.movieItem}
+              coverType="poster"
+            />
+          ))}
+        </View>
+      </View>
+    </ScrollView>
+  )
 }
 
 const styles = StyleSheet.create({
-    container: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 16,
-    },
-    inputContainer: {
-        height: 50,
-        backgroundColor: '#edebeb',
-        borderRadius: 30,
-        width: 365,
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 15,
-    },
-    icon: {
-        position: 'absolute',
-        right: 20,
-        top: 12,
-    },
-    input: {
-        flex: 1,
-        height: '100%',
-    },
-    movieItem: {
-        margin: 5,
-        width: 100,
-        height: 150,
-    },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 120,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 60,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 30,
+    paddingHorizontal: 15,
+  },
+  icon: {
+    marginLeft: 10,
+  },
+  input: {
+    flex: 1,
+  },
+  movieItem: {
+    width: 110,
+    height: 200,
+    marginHorizontal: 8,
+    marginBottom: 8,
+  },
+  rowItem: {
+    marginTop: 12,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+  },
 })
 
 export default KeywordSearch

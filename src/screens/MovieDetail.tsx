@@ -5,7 +5,7 @@ import { API_ACCESS_TOKEN } from "@env";
 import { FontAwesome } from '@expo/vector-icons'
 import type { Movie, MovieListProps } from '../types/app'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Feather } from '@expo/vector-icons'
+// import { Feather } from '@expo/vector-icons'
 import MovieList from '../components/movie/MovieList'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
