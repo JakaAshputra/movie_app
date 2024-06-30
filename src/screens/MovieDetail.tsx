@@ -3,10 +3,10 @@ import { Text, View, StyleSheet,ScrollView,ImageBackground,TouchableOpacity,Aler
 import { useNavigation } from "@react-navigation/native";
 import { API_ACCESS_TOKEN } from "@env";
 import { FontAwesome } from '@expo/vector-icons'
-import { Movie, MovieListProps } from '../types/app'
+import type { Movie, MovieListProps } from '../types/app'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Feather } from '@expo/vector-icons'
-import MovieList from '../components/movies/MovieList'
+// import { Feather } from '@expo/vector-icons'
+import MovieList from '../components/movie/MovieList'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const MovieDetail = ({ route }: any): JSX.Element => {

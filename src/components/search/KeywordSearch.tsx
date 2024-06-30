@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { View, TextInput, StyleSheet, ScrollView } from 'react-native'
 import { Feather } from '@expo/vector-icons'
-import { Movie } from '../../types/app'
+import type { Movie } from '../../types/app'
 import { API_ACCESS_TOKEN } from '@env'
-import MovieItem from '../movies/MovieItem'
+import MovieItem from '../movie/MovieItem'
 
 const KeywordSearch = () => {
   const [keyword, setKeyword] = useState('')

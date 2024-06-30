@@ -7,8 +7,8 @@ import {
   ScrollView,
 } from 'react-native'
 import { API_ACCESS_TOKEN } from '@env'
-import { Genre, Movie } from '../../types/app'
-import MovieItem from '../movies/MovieItem'
+import type { Genre, Movie } from '../../types/app'
+import MovieItem from '../movie/MovieItem'
 
 const CategorySearch = () => {
   const [genres, setGenres] = useState<Genre[]>([])
