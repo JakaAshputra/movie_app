@@ -10,14 +10,14 @@ export interface MovieListProps {
     coverType: 'poster' | 'backdrop'
   }
 
-  export interface MovieDetailProps {
-    movie: Movie
-  }
+//   export interface MovieDetailProps {
+//     movie: Movie
+//   }
 
-  export interface MovieCategoryProps {
-    id: number
-    name: string
-}
+//   export interface MovieCategoryProps {
+//     id: number
+//     name: string
+// }
 
 
   export interface Movie {
@@ -55,3 +55,8 @@ export interface MovieListProps {
     vote_average: number
     vote_count: number
   }
+
+  export interface Genre {
+  id: number
+  name: string
+}
