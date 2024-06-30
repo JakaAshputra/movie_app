@@ -4,7 +4,6 @@ import HomeStackNavigation from './HomeStackNavigation'
 import FavoriteStackNavigation from './FavoriteStackNavigation'
 import { Feather } from '@expo/vector-icons'
 import Search from '../screens/Search'
-import Favorite from '../screens/Favorite'
 
 const Tab = createBottomTabNavigator()
 
